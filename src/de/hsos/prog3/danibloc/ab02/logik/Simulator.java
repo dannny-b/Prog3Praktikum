@@ -1,0 +1,98 @@
+package de.hsos.prog3.danibloc.ab02.logik;
+
+import java.util.Arrays;
+import java.util.Random;
+
+public class Simulator implements Simulation {
+    BeiAenderung beiAenderung;
+    private boolean[][] spielfeld;
+    private int anzahlFelder;
+
+    /**
+     * Die Implementierungen der Methoden
+     * berechneAnfangsGeneration(…) und berechneFolgeGeneration(…) rufen sobald
+     * eine neue Generation vorliegt, die aktualisiere-Methode der Instanzvariable beiAenderung
+     * auf, falls diese nicht null ist.
+     */
+
+    @Override
+    public void berechneAnfangsGeneration(int anzahlDerZellen, int wahrscheinlichkeitDerBesiedlung) {
+        this.anzahlFelder = anzahlDerZellen;
+        this.spielfeld = new boolean[anzahlDerZellen][anzahlDerZellen];
+        Random rdm = new Random();
+
+        for (int i = 0; i < spielfeld.length; i++) {
+            for (int j = 0; j < spielfeld.length; j++) {
+                this.spielfeld[i][j] = rdm.nextInt(100) < wahrscheinlichkeitDerBesiedlung;
+            }
+        }
+        this.aktualisieren(this.spielfeld);
+
+    }
+
+
+    @Override
+    public void berechneFolgeGeneration(int berechnungsschritte) {
+        if (berechnungsschritte < 1) return;
+        if (this.spielfeld == null) throw new IllegalStateException();
+
+        boolean[][] neueGeneration = new boolean[this.anzahlFelder][this.anzahlFelder];
+
+        for (int i = 0; i < this.anzahlFelder; i++) {
+            for (int j = 0; j < this.anzahlFelder; j++) {
+                neueGeneration[i][j] = this.aktualisiereZelle(i, j);
+            }
+        }
+        if (Arrays.deepEquals(neueGeneration, this.spielfeld)) {
+            System.out.println("Keine Änderung");
+        }
+
+        this.spielfeld = neueGeneration;
+        this.aktualisieren(this.spielfeld);
+        try {
+            Thread.sleep(200);
+        }catch (InterruptedException e){
+            e.printStackTrace();
+        }
+        this.berechneFolgeGeneration(berechnungsschritte-1);
+    }
+
+    @Override
+    public void anmeldenFuerAktualisierungenBeiAenderung(BeiAenderung beiAenderung) {
+        this.beiAenderung = beiAenderung;
+    }
+
+    private boolean aktualisiereZelle(int x, int y) {
+        int nNachbarn = zaehleNachbarn(x, y);
+        boolean state = spielfeld[x][y];
+        boolean neu = false;
+        if (state == false && nNachbarn == 3) {
+            neu = true;
+        } else if (state == true && (nNachbarn < 2 || nNachbarn > 3)) {
+            neu = false;
+        }
+        return neu;
+    }
+
+    private int zaehleNachbarn(int x, int y) {
+        int summe = 0;
+        for (int i = -1; i < 2; i++) {
+            for (int j = -1; j < 2; j++) {
+                int xMod = (x + i + spielfeld.length) % spielfeld.length;
+                int yMod = (y + j + spielfeld.length) % spielfeld.length;
+
+                if (spielfeld[xMod][yMod]) {
+                    summe++;
+                }
+            }
+        }
+        if (spielfeld[x][y]) summe--;
+        return summe;
+    }
+
+    private void aktualisieren(boolean[][] neueGeneration) {
+        if (this.beiAenderung != null) {
+            beiAenderung.aktualisiere(neueGeneration);
+        }
+    }
+}
