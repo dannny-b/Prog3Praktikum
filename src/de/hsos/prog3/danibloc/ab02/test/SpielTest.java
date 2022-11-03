@@ -8,6 +8,7 @@ public class SpielTest {
         Steuerung steuerung = new Steuerung(new Simulator());
         steuerung.startDesSpiels();
         //test kommentar
+        //test kommentar pc
 
     }
 }
