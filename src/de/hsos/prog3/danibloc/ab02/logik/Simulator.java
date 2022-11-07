@@ -1,6 +1,8 @@
 package de.hsos.prog3.danibloc.ab02.logik;
 
+import javax.lang.model.element.Element;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Random;
 
 public class Simulator implements Simulation {
@@ -50,7 +52,7 @@ public class Simulator implements Simulation {
         this.spielfeld = neueGeneration;
         this.aktualisieren(this.spielfeld);
         try {
-            Thread.sleep(200);
+            Thread.sleep(150);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
