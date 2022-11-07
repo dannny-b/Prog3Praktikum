@@ -18,6 +18,7 @@ public class Ringpuffer<E> implements Queue, Serializable, Cloneable {
 
     public Ringpuffer(int capacity, boolean fixedCapacity, boolean discarding) {
         this.capacity = (capacity < 1) ? 5 : capacity;
+        System.out.println(capacity);
         this.readPos = 0;
         this.writePos = 0;
         this.fixedCapacity = fixedCapacity;
@@ -70,22 +71,22 @@ public class Ringpuffer<E> implements Queue, Serializable, Cloneable {
 
     @Override
     public boolean add(Object o) {
-        if (isFull) {
-            // TODO: überschreiben
-            if (discarding) {
-
-            } else {
-                if (!fixedCapacity) {
-                    // TODO: kapazität erweitern
-                } else {
-                    throw new IndexOutOfBoundsException("Zu viele Elemente");
-                    // TODO: return false;
-                }
-            }
+        if (isEmpty()) {
+            elements.add(writePos, (E) o);
+            writePos++;
+            updateSize();
+            return true;
         }
-        this.elements.set(writePos, (E) o);
+        if(writePos == size){
+            writePos = 0;
+        }
+        elements.add(writePos, (E) o);
+        writePos++;
         updateSize();
-        return true;
+
+
+        return false;
+
     }
 
     @Override
@@ -171,4 +172,13 @@ public class Ringpuffer<E> implements Queue, Serializable, Cloneable {
         return ((this.writePos - this.readPos) + 1) == this.capacity;
     }
 
+    public int getCapacity() {
+        return this.capacity + 1;
+    }
+
+    public void showPuffer(){
+       for(int i=0; i<elements.size();i++){
+           System.out.println(i + ": "+ elements.get(i));
+       }
+    }
 }
