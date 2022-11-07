@@ -27,7 +27,6 @@ public class Simulator implements Simulation {
             }
         }
         this.aktualisieren(this.spielfeld);
-
     }
 
 
@@ -45,16 +44,17 @@ public class Simulator implements Simulation {
         }
         if (Arrays.deepEquals(neueGeneration, this.spielfeld)) {
             System.out.println("Keine Änderung");
+            return;
         }
 
         this.spielfeld = neueGeneration;
         this.aktualisieren(this.spielfeld);
         try {
             Thread.sleep(200);
-        }catch (InterruptedException e){
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        this.berechneFolgeGeneration(berechnungsschritte-1);
+        this.berechneFolgeGeneration(berechnungsschritte - 1);
     }
 
     @Override
@@ -64,14 +64,10 @@ public class Simulator implements Simulation {
 
     private boolean aktualisiereZelle(int x, int y) {
         int nNachbarn = zaehleNachbarn(x, y);
-        boolean state = spielfeld[x][y];
-        boolean neu = false;
-        if (state == false && nNachbarn == 3) {
-            neu = true;
-        } else if (state == true && (nNachbarn < 2 || nNachbarn > 3)) {
-            neu = false;
+        if (this.spielfeld[x][y]) {
+            return nNachbarn == 2 || nNachbarn == 3;
         }
-        return neu;
+        return nNachbarn == 3;
     }
 
     private int zaehleNachbarn(int x, int y) {
@@ -87,6 +83,7 @@ public class Simulator implements Simulation {
             }
         }
         if (spielfeld[x][y]) summe--;
+        System.out.println("Nachbarn: " + summe);
         return summe;
     }
 
