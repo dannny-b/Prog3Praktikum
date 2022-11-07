@@ -8,8 +8,8 @@ import java.util.Queue;
 
 public class Ringpuffer<E> implements Queue, Serializable, Cloneable {
     private int size = 0;
-    private int writePos = 0;
-    private int readPos = 0;
+    private int writePos;
+    private int readPos;
     private int capacity;
     private boolean fixedCapacity;
     private boolean discarding;
@@ -19,7 +19,7 @@ public class Ringpuffer<E> implements Queue, Serializable, Cloneable {
     public Ringpuffer(int capacity, boolean fixedCapacity, boolean discarding) {
         this.capacity = (capacity < 1) ? 5 : capacity;
         this.readPos = 0;
-        this.writePos = -1;
+        this.writePos = 0;
         this.fixedCapacity = fixedCapacity;
         this.discarding = discarding;
 
@@ -84,12 +84,21 @@ public class Ringpuffer<E> implements Queue, Serializable, Cloneable {
             }
         }
         this.elements.set(writePos, (E) o);
-        this.size++;
+        updateSize();
         return true;
     }
 
     @Override
     public boolean remove(Object o) {
+        /**
+         *Entfernte“ Elemente
+         * sollen physisch in der
+         * ArrayList<T> verbleiben.
+         * Sie werden nur „logisch“
+         * gelöscht, indem die
+         * Lesen-Position
+         * verschoben wird.
+         * **/
         return false;
     }
 
@@ -110,7 +119,7 @@ public class Ringpuffer<E> implements Queue, Serializable, Cloneable {
 
     @Override
     public boolean removeAll(Collection c) {
-        return false;
+        throw new IllegalArgumentException();
     }
 
     @Override
@@ -154,8 +163,8 @@ public class Ringpuffer<E> implements Queue, Serializable, Cloneable {
         return null;
     }
 
-    private int updateSize() {
-        return (this.writePos - this.readPos) + 1;
+    private void updateSize() {
+        this.size = (this.writePos - this.readPos) + 1;
     }
 
     private boolean isFull() {
