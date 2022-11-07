@@ -83,7 +83,6 @@ public class Simulator implements Simulation {
             }
         }
         if (spielfeld[x][y]) summe--;
-        System.out.println("Nachbarn: " + summe);
         return summe;
     }
 
