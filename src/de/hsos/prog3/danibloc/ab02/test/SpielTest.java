@@ -7,8 +7,5 @@ public class SpielTest {
     public static void main(String[] args) {
         Steuerung steuerung = new Steuerung(new Simulator());
         steuerung.startDesSpiels();
-        //test kommentar
-        //test kommentar pc
-
     }
 }

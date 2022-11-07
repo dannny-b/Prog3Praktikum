@@ -29,12 +29,14 @@ public class Steuerung implements BeiAenderung {
         this.simulation.berechneAnfangsGeneration(nZellen, pBesiedlung);
 
         int nSchritte;
-        do{
+        do {
             nSchritte = this.nutzerEingabe.anzahlDerSimulationsschritte();
-            if(nSchritte < 0 ) {
+            if (nSchritte < 0) {
                 break;
             }
             this.simulation.berechneFolgeGeneration(nSchritte);
+
+
         } while (nSchritte >= 0);
 
         System.out.println("---------------------------- und tschuess!");
