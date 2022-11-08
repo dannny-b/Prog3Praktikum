@@ -1,12 +1,16 @@
 package de.hsos.prog3.danibloc.ab02.logik;
 
+import javax.lang.model.element.Element;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Random;
 
 public class Simulator implements Simulation {
     BeiAenderung beiAenderung;
     private boolean[][] spielfeld;
     private int anzahlFelder;
+    private int countKeineAenderung = 0;
+     boolean nicht_mehr_aendern = false;
 
     /**
      * Die Implementierungen der Methoden
@@ -32,29 +36,42 @@ public class Simulator implements Simulation {
 
     @Override
     public void berechneFolgeGeneration(int berechnungsschritte) {
-        if (berechnungsschritte < 1) return;
-        if (this.spielfeld == null) throw new IllegalStateException();
 
-        boolean[][] neueGeneration = new boolean[this.anzahlFelder][this.anzahlFelder];
+        if (!nicht_mehr_aendern) {
+            if (berechnungsschritte < 1) return;
+            if (this.spielfeld == null) throw new IllegalStateException();
 
-        for (int i = 0; i < this.anzahlFelder; i++) {
-            for (int j = 0; j < this.anzahlFelder; j++) {
-                neueGeneration[i][j] = this.aktualisiereZelle(i, j);
+            boolean[][] neueGeneration = new boolean[this.anzahlFelder][this.anzahlFelder];
+
+            for (int i = 0; i < this.anzahlFelder; i++) {
+                for (int j = 0; j < this.anzahlFelder; j++) {
+                    neueGeneration[i][j] = this.aktualisiereZelle(i, j);
+                }
             }
-        }
-        if (Arrays.deepEquals(neueGeneration, this.spielfeld)) {
-            System.out.println("Keine Änderung");
-            return;
+            if (Arrays.deepEquals(neueGeneration, this.spielfeld)) {
+                System.out.println("Keine Änderung");
+                countKeineAenderung++;
+                if (countKeineAenderung == 2) {
+                    nicht_mehr_aendern = true;
+                }
+                return;
+            }
+
+            this.spielfeld = neueGeneration;
+            this.aktualisieren(this.spielfeld);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println("Berechnugnsschrítte: " + berechnungsschritte);
+            this.berechneFolgeGeneration(berechnungsschritte - 1);
+        } else {
+            System.out.println("Es wir nix mehr geändert!");
+            this.aktualisieren(this.spielfeld);
+            //this.berechneFolgeGeneration(berechnungsschritte - berechnungsschritte);
         }
 
-        this.spielfeld = neueGeneration;
-        this.aktualisieren(this.spielfeld);
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        this.berechneFolgeGeneration(berechnungsschritte - 1);
     }
 
     @Override
@@ -70,6 +87,7 @@ public class Simulator implements Simulation {
         return nNachbarn == 3;
     }
 
+
     private int zaehleNachbarn(int x, int y) {
         int summe = 0;
         for (int i = -1; i < 2; i++) {
@@ -82,8 +100,8 @@ public class Simulator implements Simulation {
                 }
             }
         }
+
         if (spielfeld[x][y]) summe--;
-        System.out.println("Nachbarn: " + summe);
         return summe;
     }
 
@@ -92,4 +110,8 @@ public class Simulator implements Simulation {
             beiAenderung.aktualisiere(neueGeneration);
         }
     }
+    public boolean getNichtMehrAendern() {
+        return nicht_mehr_aendern;
+    }
 }
+

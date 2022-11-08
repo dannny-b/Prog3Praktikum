@@ -3,8 +3,7 @@ package de.hsos.prog3.danibloc.ab02.ui;
 import de.hsos.prog3.danibloc.ab02.util.EinUndAusgabe;
 
 public class NutzerEingabe {
-    private final int maxFelder = 50;
-    private final int maxSchritte = 25;
+    private final int maxSchritte = 1000;
     private EinUndAusgabe io;
 
     public NutzerEingabe(EinUndAusgabe io) {
@@ -32,8 +31,9 @@ public class NutzerEingabe {
 
     public int anzahlDerSimulationsschritte() {
         int eingabe;
-            io.ausgeben("Wert zwischen 1 - " + maxSchritte + " eingeben: ");
-            eingabe = io.leseInteger();
+        io.ausgeben("Wert zwischen 1 - " + maxSchritte + " eingeben: ");
+        eingabe = io.leseInteger();
+        if(eingabe > maxSchritte) return maxSchritte;
         return eingabe;
     }
 
