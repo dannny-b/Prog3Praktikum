@@ -1,47 +1,38 @@
 package de.hsos.prog3.danibloc.ab03;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Queue;
+import java.util.*;
 
-public class Ringpuffer<E> implements Queue, Serializable, Cloneable {
+public class Ringpuffer<T> implements Queue<T>, Serializable, Cloneable {
+    private int writePos = -1;
+    private int readPos = 0;
     private int size = 0;
-    private int writePos;
-    private int readPos;
     private int capacity;
+
+    private int extendCapacity = 5;
     private boolean fixedCapacity;
     private boolean discarding;
-    private boolean isFull = false;
-    private ArrayList<E> elements;
+    ArrayList<T> elements;
 
     public Ringpuffer(int capacity, boolean fixedCapacity, boolean discarding) {
-        this.capacity = (capacity < 1) ? 5 : capacity;
-        System.out.println(capacity);
-        this.readPos = 0;
-        this.writePos = 0;
+        this.capacity = capacity;
         this.fixedCapacity = fixedCapacity;
         this.discarding = discarding;
 
-        this.elements = new ArrayList<E>(capacity);
-        this.isFull = isFull();
+        elements = new ArrayList<>(this.capacity);
+        initialize(elements);
     }
 
-    @Override
-    public Ringpuffer<E> clone() {
-        try {
-            Ringpuffer clone = (Ringpuffer) super.clone();
-            // TODO: copy mutable state here, so the clone can't change the internals of the original
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
+    private void initialize(ArrayList<T> elements) {
+        for(int i=0;i<capacity;i++){
+            elements.add(null);
         }
     }
 
+
     @Override
     public int size() {
-        return this.size;
+        return (this.writePos - this.readPos) + 1;
     }
 
     @Override
@@ -55,56 +46,57 @@ public class Ringpuffer<E> implements Queue, Serializable, Cloneable {
     }
 
     @Override
-    public Iterator iterator() {
+    public Iterator<T> iterator() {
         return null;
     }
 
     @Override
     public Object[] toArray() {
-        return new Object[0];
+        Object[] arrayElements = new Object[capacity];
+        if (!isEmpty()) {
+            for (int i = 0; i < capacity; i++) {
+                arrayElements[i] = elements.get(i);
+            }
+            return arrayElements;
+        }
+        return null;
     }
 
     @Override
-    public Object[] toArray(Object[] a) {
-        return new Object[0];
+    public <T1> T1[] toArray(T1[] a) {
+        return null;
     }
 
     @Override
-    public boolean add(Object o) {
-        if (isEmpty()) {
-            elements.add(writePos, (E) o);
-            writePos++;
-            updateSize();
-            return true;
-        }
-        if(writePos == size){
-            writePos = 0;
-        }
-        elements.add(writePos, (E) o);
-        writePos++;
-        updateSize();
-
-
+    public boolean add(T t) {
         return false;
-
     }
 
     @Override
     public boolean remove(Object o) {
-        /**
-         *Entfernte“ Elemente
-         * sollen physisch in der
-         * ArrayList<T> verbleiben.
-         * Sie werden nur „logisch“
-         * gelöscht, indem die
-         * Lesen-Position
-         * verschoben wird.
-         * **/
+        if(!isEmpty() && contains(o)){
+            return true;
+        }
         return false;
     }
 
     @Override
-    public boolean addAll(Collection c) {
+    public boolean containsAll(Collection<?> c) {
+        return false;
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends T> c) {
+        return false;
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        return false;
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c) {
         return false;
     }
 
@@ -114,71 +106,93 @@ public class Ringpuffer<E> implements Queue, Serializable, Cloneable {
     }
 
     @Override
-    public boolean retainAll(Collection c) {
-        return false;
-    }
-
-    @Override
-    public boolean removeAll(Collection c) {
-        throw new IllegalArgumentException();
-    }
-
-    @Override
-    public boolean containsAll(Collection c) {
-        return false;
-    }
-
-    @Override
-    public boolean offer(Object o) {
-        if (!isFull) {
-            int nextWritePos = this.writePos + 1;
-            this.elements.set(nextWritePos % capacity, (E) o);
+    public boolean offer(T element) {
+        if (!isFull()) {
+            if(writePos==-1){
+                writePos++;
+            }
+            elements.set((writePos % capacity), element);
             writePos++;
+            size++;
             return true;
         }
+        System.out.println("Puffer voll");
+        // TODO: else: no empty slot ---> Overwrite, expand buffer!
+        if (!fixedCapacity) {
+            for(int i = 0; i < extendCapacity; i++){
+                elements.add(null);
+                capacity++;
+            }
+            return offer(element);
+        }
+        if (discarding) {
+            ++writePos;
+            return offer(element);
+        }
         return false;
     }
 
     @Override
-    public Object remove() {
-        return null;
-    }
-
-    @Override
-    public Object poll() {
+    public T remove() {
         if (!isEmpty()) {
-            E nextValue = this.elements.get(this.readPos % this.capacity);
-            this.readPos++;
+            T nextValue = elements.get(readPos % capacity);
+            readPos++;
+            size--;
             return nextValue;
         }
-        return null;
+        throw new NoSuchElementException();
     }
 
     @Override
-    public Object element() {
-        return null;
+    public T poll() {
+        try {
+            return remove();
+        }catch (Exception e){
+            return null;
+        }
     }
 
     @Override
-    public Object peek() {
-        return null;
+    public T element() {
+        if (!isEmpty()) {
+            return elements.get(readPos);
+        }
+
+        throw new NoSuchElementException();
+
     }
 
-    private void updateSize() {
-        this.size = (this.writePos - this.readPos) + 1;
+    @Override
+    public T peek() {
+        try {
+            return element();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
-    private boolean isFull() {
-        return ((this.writePos - this.readPos) + 1) == this.capacity;
+    public boolean isFull() {
+        return (size == this.capacity);
     }
 
-    public int getCapacity() {
-        return this.capacity + 1;
-    }
+    public void run() {
+        if (!isEmpty()) {
+            for (int i = 0; i < capacity; i++) {
+                System.out.println(i + " : " + elements.get(i));
+            }
+        }else{
+            System.out.println("Puffer leer!");
+        }
+        System.out.println("read: " + readPos%capacity + " , write: " + writePos%capacity);
 
-    public void showPuffer(){
-       for(int i=0; i<elements.size();i++){
-           System.out.println(i + ": "+ elements.get(i));
-       }
+    }
+    public void runArray(){
+        for(T o : elements){
+            if(o==null){
+                System.out.print("X ");
+            }else{
+                System.out.print(o.toString() + " ");
+            }
+        }
     }
 }
