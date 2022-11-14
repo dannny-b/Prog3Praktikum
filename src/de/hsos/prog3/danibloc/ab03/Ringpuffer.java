@@ -1,20 +1,37 @@
 package de.hsos.prog3.danibloc.ab03;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Queue;
+import java.util.*;
 
 public class Ringpuffer<E> implements Queue, Serializable, Cloneable {
     private int size = 0;
+
+    public int getSize() {
+        return size;
+    }
+
+    public int getWritePos() {
+        return writePos;
+    }
+
+    public int getReadPos() {
+        return readPos;
+    }
+
     private int writePos;
     private int readPos;
     private int capacity;
     private boolean fixedCapacity;
     private boolean discarding;
     private boolean isFull = false;
+
+    public ArrayList<E> getElements() {
+        return elements;
+    }
+
     private ArrayList<E> elements;
+
+    private ArrayDeque<E> arrayDeque = new ArrayDeque<>();
 
     public Ringpuffer(int capacity, boolean fixedCapacity, boolean discarding) {
         this.capacity = (capacity < 1) ? 5 : capacity;
@@ -28,6 +45,27 @@ public class Ringpuffer<E> implements Queue, Serializable, Cloneable {
         this.isFull = isFull();
     }
 
+    public Ringpuffer(Ringpuffer<E> ringpuffer) {
+        this.capacity = ringpuffer.getCapacity();
+        this.readPos = ringpuffer.getReadPos();
+        this.writePos = ringpuffer.getWritePos();
+        this.fixedCapacity = ringpuffer.fixedCapacity;
+        this.discarding = ringpuffer.isDiscarding();
+        this.updateSize();
+        this.elements = ringpuffer.getElements();
+        this.isFull = isFull();
+
+
+    }
+
+    private boolean isDiscarding() {
+        return this.discarding;
+    }
+
+    private boolean isFixedCapacity() {
+        return this.fixedCapacity;
+    }
+
     @Override
     public Ringpuffer<E> clone() {
         try {
@@ -38,6 +76,7 @@ public class Ringpuffer<E> implements Queue, Serializable, Cloneable {
             throw new AssertionError();
         }
     }
+
 
     @Override
     public int size() {
@@ -61,7 +100,11 @@ public class Ringpuffer<E> implements Queue, Serializable, Cloneable {
 
     @Override
     public Object[] toArray() {
-        return new Object[0];
+        Object[] array = new Object[this.size];
+        for (int i = 0; i < this.size; i++) {
+            array[i] = elements.get(i);
+        }
+        return array;
     }
 
     @Override
@@ -77,7 +120,7 @@ public class Ringpuffer<E> implements Queue, Serializable, Cloneable {
             updateSize();
             return true;
         }
-        if(writePos == size){
+        if (writePos == size) {
             writePos = 0;
         }
         elements.add(writePos, (E) o);
@@ -176,9 +219,9 @@ public class Ringpuffer<E> implements Queue, Serializable, Cloneable {
         return this.capacity + 1;
     }
 
-    public void showPuffer(){
-       for(int i=0; i<elements.size();i++){
-           System.out.println(i + ": "+ elements.get(i));
-       }
+    public void showPuffer() {
+        for (int i = 0; i < elements.size(); i++) {
+            System.out.println(i + ": " + elements.get(i));
+        }
     }
 }
