@@ -53,7 +53,7 @@ public class Simulator implements Simulation {
             this.spielfeld = neueGeneration;
             this.aktualisieren(this.spielfeld);
             try {
-                Thread.sleep(100);
+                Thread.sleep(10);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
