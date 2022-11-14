@@ -1,8 +1,8 @@
-import javax.lang.model.type.NullType;
+package de.hsos.prog3.danibloc.ab03;
+
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.*;
-
 import static java.util.Collections.copy;
 
 public class CircularBuffer<E> implements Queue<E>, Serializable, Cloneable {

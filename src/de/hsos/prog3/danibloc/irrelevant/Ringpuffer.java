@@ -1,4 +1,4 @@
-package de.hsos.prog3.danibloc.ab03;
+package de.hsos.prog3.danibloc.irrelevant;
 
 import java.io.Serializable;
 import java.util.ArrayList;
