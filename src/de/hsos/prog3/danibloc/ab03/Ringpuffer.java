@@ -3,9 +3,11 @@ package de.hsos.prog3.danibloc.ab03;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.*;
+
 import static java.util.Collections.copy;
 
-public class CircularBuffer<E> implements Queue<E>, Serializable, Cloneable {
+
+public class Ringpuffer<E> implements Queue<E>, Serializable, Cloneable {
     private ArrayList<E> elements;
     private int writePos;
     private int readPos;
@@ -14,7 +16,7 @@ public class CircularBuffer<E> implements Queue<E>, Serializable, Cloneable {
     private final boolean fixedCapacity;
     private final boolean discarding;
 
-    public CircularBuffer(int capacity, boolean fixedCapacity, boolean discarding) {
+    public Ringpuffer(int capacity, boolean fixedCapacity, boolean discarding) {
         this.elements = new ArrayList<>(this.capacity = capacity);
         for (int i = 0; i < capacity; i++) {
             elements.add(null);
@@ -26,7 +28,7 @@ public class CircularBuffer<E> implements Queue<E>, Serializable, Cloneable {
     @Override
     public Object clone() {
         try {
-            CircularBuffer<E> c = (CircularBuffer<E>) super.clone();
+            Ringpuffer<E> c = (Ringpuffer<E>) super.clone();
             c.elements = new ArrayList<>(c.capacity);
             copy(c.elements, elements);
             return c;
@@ -47,24 +49,8 @@ public class CircularBuffer<E> implements Queue<E>, Serializable, Cloneable {
 
     @Override
     public boolean contains(Object o) {
-        return (indexOf(o) >= 0);
-    }
-
-    private int indexOf(Object o) {
-        if (o == null) {
-            for (int i = 0; i < size; i++) {
-                if (elements.get(i) == null) {
-                    return i;
-                }
-            }
-        } else {
-            for (int i = 0; i < size; i++) {
-                if (elements.get(i) == o) {
-                    return i;
-                }
-            }
-        }
-        return -1;
+        if (elements.contains(o)) return true;
+        return false;
     }
 
     @Override
@@ -101,20 +87,21 @@ public class CircularBuffer<E> implements Queue<E>, Serializable, Cloneable {
 
     @Override
     public <E> E[] toArray(E[] a) {
+
         if (a.length < size) {
-            a = (E[]) new Object[capacity];
+            a = (E[]) Array.newInstance(a.getClass().getComponentType(), size);
         }
-        int tmp = readPos;
+
+        Iterator<E> itr = (Iterator<E>) iterator();
         for (int i = 0; i < size; i++) {
-
-            a[i] = (E) elements.get(tmp);
-            tmp = (tmp + 1) % capacity;
+            a[i] = itr.next();
         }
 
-        if (a.length > capacity) {
-            a[writePos + 1] = null;
+        if (a.length > size) {
+            a[size] = null;
         }
         return a;
+
     }
 
     private boolean writeInto(int pos, Object o) {
