@@ -5,6 +5,7 @@ import de.hsos.prog3.danibloc.ab04.util.Interaktionsbrett.*;
 public class Spieler {
     private Spielfeld spielfeld;
     private Rectangle schlaeger;
+    private final int SPEED = 25;
     private int punkte;
     private final int width, height;
 
@@ -26,8 +27,14 @@ public class Spieler {
     }
 
 
-    public void aufwaerts(){schlaeger.verschiebe(this.x,this.y-10);}
-    public void abwaerts(){schlaeger.verschiebe(this.x,this.y+10);}
+    public void aufwaerts(){
+        if(schlaeger.getY()-SPEED<0 || schlaeger.getY() - SPEED <= SPEED){
+            System.out.println("zu weit");
+            schlaeger.verschiebeNach(schlaeger.getX(), spielfeld.getY());
+        }
+        schlaeger.verschiebe(0,-20);
+    }
+    public void abwaerts(){schlaeger.verschiebe(0,20);}
 
     public Rectangle getSchlaeger() {
         return this.schlaeger;

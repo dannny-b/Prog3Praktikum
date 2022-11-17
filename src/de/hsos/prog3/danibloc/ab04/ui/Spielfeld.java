@@ -43,4 +43,6 @@ public class Spielfeld {
     public int getMARGIN(){
         return MARGIN;
     }
+
+    public int getY(){return (int) (IB_DIM.height- FELD_DIM.getHeight());}
 }

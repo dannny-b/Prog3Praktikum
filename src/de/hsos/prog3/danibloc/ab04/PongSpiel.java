@@ -3,21 +3,43 @@ package de.hsos.prog3.danibloc.ab04;
 import de.hsos.prog3.danibloc.ab04.ui.Spieler;
 import de.hsos.prog3.danibloc.ab04.ui.Spielfeld;
 import de.hsos.prog3.danibloc.ab04.util.Interaktionsbrett;
+import de.hsos.prog3.danibloc.ab04.util.*;
 
 import java.awt.event.KeyEvent;
+import java.net.http.WebSocket;
 import java.sql.Time;
 
 public class PongSpiel {
     private Interaktionsbrett ib;
+
+    public Interaktionsbrett getIb() {
+        return ib;
+    }
+
+    public Spielfeld getSpielfeld() {
+        return spielfeld;
+    }
+
+    public Spieler getSpielerLinks() {
+        return spielerLinks;
+    }
+
+    public Spieler getSpielerRechts() {
+        return spielerRechts;
+    }
+
     private Spielfeld spielfeld;
     private Spieler spielerLinks;
     private Spieler spielerRechts;
+
+    public Spielen spielenThread;
     private final int FPMS = 17;
 
-    public PongSpiel() {
+    public PongSpiel(){
         ib = new Interaktionsbrett();
-        ib.willTasteninfo(this);
         startAufstellung();
+        ib.willTasteninfo(this);
+
     }
 
     private void startAufstellung() {
@@ -32,20 +54,13 @@ public class PongSpiel {
     }
 
     public void spielen() throws InterruptedException {
-        long differenz = 0;
-        while (true) {
-            long vorher = System.currentTimeMillis();
-            ib.abwischen();
-            spielfeld.darstellen(ib);
-            spielerLinks.getSchlaeger().darstellenFuellung(ib);
-            spielerRechts.getSchlaeger().darstellenFuellung(ib);
-            long nacher = System.currentTimeMillis();
-            Thread.sleep(FPMS - (nacher-vorher));
-        }
-
+        spielenThread = new Spielen("spielenThread",this);
+        spielenThread.start();
     }
 
     public void tasteGedrueckt(String s) throws InterruptedException {
+
+
         if (s.equals("s")) {
             System.out.println("Spiel gestartet");
             spielen();
@@ -58,13 +73,13 @@ public class PongSpiel {
         }
 
         if (s.equals("a")) {
-            System.out.println("Spieler 1 hoch");
             spielerLinks.aufwaerts();
         }
 
         if (s.equals("y")) {
-            System.out.println("Spieler 2 runter");
-            spielerRechts.abwaerts();
+            spielerLinks.abwaerts();
         }
     }
+
+
 }
