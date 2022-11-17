@@ -28,6 +28,7 @@ public class Spieler {
 
 
     public void aufwaerts(){
+        // ToDO: grenzen akkurat implementieren
         if(schlaeger.getY()-SPEED<0 || schlaeger.getY() - SPEED <= SPEED){
             System.out.println("zu weit");
             schlaeger.verschiebeNach(schlaeger.getX(), spielfeld.getY());

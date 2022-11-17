@@ -1,7 +1,6 @@
 package de.hsos.prog3.danibloc.ab04.util;
 
 import de.hsos.prog3.danibloc.ab04.PongSpiel;
-import de.hsos.prog3.danibloc.ab04.util.Interaktionsbrett;
 import de.hsos.prog3.danibloc.ab04.ui.Spieler;
 import de.hsos.prog3.danibloc.ab04.ui.Spielfeld;
 
@@ -22,7 +21,8 @@ public class Spielen extends Thread {
         this.spielerRechts = spiel.getSpielerRechts();
 
     }
-    public void run(){
+
+    public void run() {
         try {
             spielen();
         } catch (InterruptedException e) {
@@ -50,8 +50,8 @@ public class Spielen extends Thread {
         }
     }
 
-    public void start(){
-        if(thread == null){
+    public void start() {
+        if (thread == null) {
             thread = new Thread(this, threadName);
             thread.setPriority(1);
             thread.start();
