@@ -1223,7 +1223,7 @@ public class Interaktionsbrett {
     }
   }
 
-  class Rechteck extends Geo {
+  public class Rechteck extends Geo {
     private int breite;
     private int hoehe;
 

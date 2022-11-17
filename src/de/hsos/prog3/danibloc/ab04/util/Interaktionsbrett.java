@@ -1,4 +1,4 @@
-package de.hsos.prog3.danibloc.ab04;/* Eine schrecklich verschachtelte Klasse zur einfachen Darstellung
+package de.hsos.prog3.danibloc.ab04.util;/* Eine schrecklich verschachtelte Klasse zur einfachen Darstellung
  * und Verschiebung verschiedener geometrischer Objekte. Der merkwuerdige
  * Programmierstil erlaubt es, dass diese Klasse fuer Programmieranfaenger
  * wie eine Klasse aussieht. Generell wird von geschachtelten Klassen
@@ -96,8 +96,8 @@ public class Interaktionsbrett {
 
     private JFrame rahmen = new JFrame("Interaktionsbrett");
     //private static final long serialVersionUID = 1L;
-    private static final Dimension DIM = new Dimension(380,
-            500);
+    private static final Dimension DIM = new Dimension(800,
+            700);
     private JLabel meldung = new JLabel(
             "Java-untypisches Zeichenbrett",
             SwingConstants.CENTER);
@@ -194,6 +194,7 @@ public class Interaktionsbrett {
         new Thread(uhrThread).start();
 
     }
+
 
     /**
      * Methode zum Starten der eingeblendeten Stoppuhr.
@@ -1136,39 +1137,7 @@ public class Interaktionsbrett {
         }
     }
 
-    class Kreis extends Geo {
-        private int radius;
-
-        public Kreis(int x, int y, int radius) {
-            super(x, y);
-            this.radius = radius;
-        }
-
-        public int getRadius() {
-            return radius;
-        }
-
-        public void setRadius(int radius) {
-            this.radius = radius;
-        }
-
-        @Override
-        public boolean istEnthalten(int x1, int y1) {
-            int xdiff = (this.x + radius) - x1;
-            int ydiff = (this.y + radius) - y1;
-
-            return xdiff * xdiff + ydiff * ydiff <= radius
-                    * radius;
-        }
-
-        @Override
-        public void zeichnen(Graphics2D g) {
-            g.drawOval(this.x, this.y, this.radius * 2,
-                    this.radius * 2);
-        }
-    }
-
-    class Rechteck extends Geo {
+    public class Rechteck extends Geo {
         private int breite;
         private int hoehe;
 
@@ -1211,11 +1180,11 @@ public class Interaktionsbrett {
         }
 
         public int mitteInY() {
-            return y+breite/2;
+            return y;
         }
 
         public int mitteInX() {
-            return (x+breite)/2;
+            return (x + breite) / 2;
         }
 
         public void verschiebe(int dx, int dy) {
@@ -1225,15 +1194,16 @@ public class Interaktionsbrett {
         }
 
         public void verschiebeNach(int x, int y) {
-
+            this.x = x;
+            this.y = y;
         }
 
         public boolean ueberschneidet(Rechteck other) {
-            if (this.oben() + breite < other.unten() || this.unten() > other.oben() + breite) {
+            if (this.oben() < other.unten() || this.unten() > other.oben()) {
                 return false;
             }
 
-            if (this.oben() + this.rechts() < other.unten() + this.rechts() || this.links() + hoehe > other.rechts()) {
+            if (this.rechts() < other.links() || this.links() > other.rechts()) {
                 return false;
             }
             return true;
@@ -1252,6 +1222,40 @@ public class Interaktionsbrett {
             g.drawRect(this.x, this.y, this.breite, this.hoehe);
         }
     }
+
+    class Kreis extends Geo {
+        private int radius;
+
+        public Kreis(int x, int y, int radius) {
+            super(x, y);
+            this.radius = radius;
+        }
+
+        public int getRadius() {
+            return radius;
+        }
+
+        public void setRadius(int radius) {
+            this.radius = radius;
+        }
+
+        @Override
+        public boolean istEnthalten(int x1, int y1) {
+            int xdiff = (this.x + radius) - x1;
+            int ydiff = (this.y + radius) - y1;
+
+            return xdiff * xdiff + ydiff * ydiff <= radius
+                    * radius;
+        }
+
+        @Override
+        public void zeichnen(Graphics2D g) {
+            g.drawOval(this.x, this.y, this.radius * 2,
+                    this.radius * 2);
+        }
+    }
+
+
 
     class Punkt extends Geo {
 
