@@ -1,25 +1,28 @@
 package de.hsos.prog3.danibloc.ab04.util;
 
 import de.hsos.prog3.danibloc.ab04.PongSpiel;
+import de.hsos.prog3.danibloc.ab04.ui.Ball;
 import de.hsos.prog3.danibloc.ab04.ui.Spieler;
 import de.hsos.prog3.danibloc.ab04.ui.Spielfeld;
 
 public class Spielen extends Thread {
     Interaktionsbrett ib;
     Spielfeld spielfeld;
+    PongSpiel spiel;
+    Ball ball;
     Spieler spielerLinks;
     Spieler spielerRechts;
-    private final int FPMS = 17;
     private Thread thread;
     private String threadName;
 
     public Spielen(String threadName, PongSpiel spiel) throws InterruptedException {
+        this.spiel = spiel;
         this.threadName = threadName;
-        this.ib = spiel.getIb();
-        this.spielfeld = spiel.getSpielfeld();
-        this.spielerLinks = spiel.getSpielerLinks();
-        this.spielerRechts = spiel.getSpielerRechts();
-
+        this.ib = this.spiel.getIb();
+        this.spielfeld = this.spiel.getSpielfeld();
+        this.spielerLinks = this.spiel.getSpielerLinks();
+        this.spielerRechts = this.spiel.getSpielerRechts();
+        this.ball = this.spiel.getBall();
     }
 
     public void run() {
@@ -43,9 +46,10 @@ public class Spielen extends Thread {
             synchronized (spielerRechts) {
                 spielerRechts.getSchlaeger().darstellenFuellung(ib);
             }
+
             long nacher = System.currentTimeMillis();
             differenz = (nacher - vorher);
-            this.sleep(FPMS - differenz);
+            this.sleep(spiel.getFPMS() - differenz);
 
         }
     }
