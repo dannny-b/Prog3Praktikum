@@ -7,6 +7,11 @@ public class Spieler {
     private Spielfeld spielfeld;
     private Rectangle schlaeger;
     private final int SPEED = 40;
+
+    public int getPunkte() {
+        return punkte;
+    }
+
     private int punkte;
     private final int width, height;
 
@@ -52,6 +57,7 @@ public class Spieler {
 
     public void erhoehePunkte() {
         this.punkte++;
+        System.out.println("Punkt Spieler" + this.toString());
     }
 
     public void setzePunkteZurueck() {

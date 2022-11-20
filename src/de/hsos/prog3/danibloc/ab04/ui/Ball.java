@@ -1,6 +1,7 @@
 package de.hsos.prog3.danibloc.ab04.ui;
 
 import de.hsos.prog3.danibloc.ab04.PongSpiel;
+import de.hsos.prog3.danibloc.ab04.util.Interaktionsbrett;
 
 public class Ball {
     Rectangle form;
@@ -38,7 +39,8 @@ public class Ball {
     }
 
     int breite, hoehe;
-    int bewegungInXProFrame, getBewegungInYProFrame;
+
+    int bewegungInXProFrame, bewegungInYProFrame;
 
 
     public Ball(Rectangle form, PongSpiel spiel) {
@@ -48,48 +50,18 @@ public class Ball {
         this.breite = form.getBreite();
         this.hoehe = form.getHoehe();
         this.spiel = spiel;
-        setxRichtung(+5);
-        setyRichtung(0);
+        bewegungInXProFrame = 2;
+        bewegungInYProFrame = 0;
     }
 
     public void bewegen(int frames) throws InterruptedException {
         for (int i = 0; i < frames; i++) {
-            long vorher = System.currentTimeMillis();
-            ueberlappt();
-            if(this.form.ueberschneidet(spiel.getSpielfeld().spielflaeche)){
-                System.out.println("Spielfeld true");
-            }
-            this.form.verschiebe(xRichtung, yRichtung);
-            if (form.getX() <= spiel.getSpielfeld().getMARGIN()) {
-                setxRichtung(+1);
-                spiel.getSpielerRechts().erhoehePunkte();
-            }
-            if (form.getX() >= spiel.getSpielfeld().getWidth()) {
-                setxRichtung(-1);
-                spiel.getSpielerLinks().erhoehePunkte();
-            }
-            if (form.getY() <= spiel.getSpielfeld().getMARGIN()) {
-                setyRichtung(+1);
-            }
-            if (form.getY() >= spiel.getSpielfeld().getHeight()) {
-                setyRichtung(+1);
-            }
-            if (frames != 1) {
-                long nacher = System.currentTimeMillis();
-                Thread.sleep(spiel.getFPMS() - (nacher - vorher));
-            }
+            this.form.verschiebe(bewegungInXProFrame, bewegungInYProFrame);
         }
     }
 
-    public void ueberlappt() {
-        if (spiel.getSpielerLinks().getSchlaeger().ueberschneidet(form)) {
-            System.out.println("überlappt");
-            setxRichtung(+1);
-        }
-        if (form.ueberschneidet(spiel.getSpielerRechts().getSchlaeger())) {
-            System.out.println("überlappt");
-            setxRichtung(-1);
-        }
+    public void darstellen(Interaktionsbrett ib) throws InterruptedException {
+        form.darstellenFuellung(ib);
     }
 
     public int getX() {
@@ -104,8 +76,15 @@ public class Ball {
         return bewegungInXProFrame;
     }
 
-    public int getGetBewegungInYProFrame() {
-        return getBewegungInYProFrame;
+    public int getBewegungInYProFrame() {
+        return bewegungInYProFrame;
     }
 
+    public void umkehrenDerBewegungInX() {
+        this.bewegungInXProFrame *= -1;
+    }
+
+    public void umkehrenDerBewegungInY() {
+        this.bewegungInYProFrame *= -1;
+    }
 }
