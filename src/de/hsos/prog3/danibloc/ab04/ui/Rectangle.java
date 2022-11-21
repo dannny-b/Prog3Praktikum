@@ -2,9 +2,12 @@ package de.hsos.prog3.danibloc.ab04.ui;
 
 import de.hsos.prog3.danibloc.ab04.util.Interaktionsbrett;
 
-import java.awt.*;
 
 public class Rectangle {
+
+    private Punkt bottomLeft, bottomRight;
+    private Punkt topLeft, topRight;
+
     public int getX() {
         return x;
     }
@@ -22,6 +25,10 @@ public class Rectangle {
         this.y = y;
         this.breite = breite;
         this.hoehe = hoehe;
+        this.topLeft = new Punkt(this.x, this.y);
+        this.topRight = new Punkt(this.x + this.breite, this.y);
+        this.bottomLeft = new Punkt(this.x, this.y + this.hoehe);
+        this.bottomRight = new Punkt(this.x + this.breite, this.y + this.hoehe);
     }
 
     public int getBreite() {
@@ -75,15 +82,32 @@ public class Rectangle {
         this.y = y;
     }
 
-    public boolean ueberschneidet(Interaktionsbrett.Rechteck other) {
-        if (this.oben() < other.unten() || this.unten() > other.oben()) {
-            return false;
-        }
 
-        if (this.rechts() < other.links() || this.links() > other.rechts()) {
+    /**
+     * src: java.awt.Rectangle
+     */
+
+    public boolean intersects(Rectangle r) {
+        int tw = this.breite;
+        int th = this.hoehe;
+        int rw = r.breite;
+        int rh = r.hoehe;
+        if (rw <= 0 || rh <= 0 || tw <= 0 || th <= 0) {
             return false;
         }
-        return true;
+        int tx = this.x;
+        int ty = this.y;
+        int rx = r.x;
+        int ry = r.y;
+        rw += rx;
+        rh += ry;
+        tw += tx;
+        th += ty;
+        //      overflow || intersect
+        return ((rw < rx || rw > tx) &&
+                (rh < ry || rh > ty) &&
+                (tw < tx || tw > rx) &&
+                (th < ty || th > ry));
     }
 
 
