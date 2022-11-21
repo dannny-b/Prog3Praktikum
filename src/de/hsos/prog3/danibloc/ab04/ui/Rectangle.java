@@ -7,15 +7,6 @@ public class Rectangle {
 
     private Punkt bottomLeft, bottomRight;
     private Punkt topLeft, topRight;
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
     private int x, y;
     private int breite;
     private int hoehe;
@@ -31,36 +22,20 @@ public class Rectangle {
         this.bottomRight = new Punkt(this.x + this.breite, this.y + this.hoehe);
     }
 
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
     public int getBreite() {
         return breite;
     }
 
-    public void setBreite(int breite) {
-        this.breite = breite;
-    }
-
     public int getHoehe() {
         return hoehe;
-    }
-
-    public void setHoehe(int hoehe) {
-        this.hoehe = hoehe;
-    }
-
-    public int oben() {
-        return this.y;
-    }
-
-    public int unten() {
-        return oben() + hoehe;
-    }
-
-    public int links() {
-        return this.x;
-    }
-
-    public int rechts() {
-        return links() + breite;
     }
 
     public int mitteInY() {
@@ -82,11 +57,9 @@ public class Rectangle {
         this.y = y;
     }
 
-
     /**
      * src: java.awt.Rectangle
      */
-
     public boolean intersects(Rectangle r) {
         int tw = this.breite;
         int th = this.hoehe;
@@ -109,7 +82,6 @@ public class Rectangle {
                 (tw < tx || tw > rx) &&
                 (th < ty || th > ry));
     }
-
 
     public void darstellenFuellung(Interaktionsbrett ib) {
         for (int i = 0; i < this.breite; i++) {

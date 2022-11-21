@@ -61,7 +61,6 @@ public class KollisionsDetektion {
 
     public boolean checkBeruehrungBallMitSchlaeger(Ball ball) {
         if ((spielerLinks.getSchlaeger().intersects(ball.getForm())) || (spielerRechts.getSchlaeger().intersects(ball.getForm()))) {
-
             return true;
         }
         return false;

@@ -14,6 +14,22 @@ public class Spielfeld {
     Rectangle spielflaeche;
     private Rectangle oben;
     private Rectangle unten;
+    private int punkte_links;
+    private int punkte_rechts;
+    private Rectangle links;
+    private Rectangle rechts;
+
+    public Spielfeld() {
+
+        spielflaeche = new Rectangle(MARGIN, MARGIN, FELD_DIM.width, FELD_DIM.height);
+        oben = new Rectangle(MARGIN, 0, getWidth(), MARGIN);
+        unten = new Rectangle(MARGIN, getHeight() + MARGIN, getWidth(), MARGIN);
+        links = new Rectangle(0, MARGIN, MARGIN, getHeight());
+        rechts = new Rectangle(getX() + getWidth() + MARGIN, MARGIN, MARGIN, getHeight());
+        punkte_links = 0;
+        punkte_rechts = 0;
+
+    }
 
     public Rectangle getOben() {
         return oben;
@@ -31,27 +47,6 @@ public class Spielfeld {
         return rechts;
     }
 
-    private Rectangle links;
-    private Rectangle rechts;
-
-    public Spielfeld() {
-
-        spielflaeche = new Rectangle(MARGIN, MARGIN, FELD_DIM.width, FELD_DIM.height);
-        oben = new Rectangle(MARGIN,0,getWidth(),MARGIN);
-        unten = new Rectangle(MARGIN, getHeight()+MARGIN,getWidth(),MARGIN);
-        links = new Rectangle(0,MARGIN,MARGIN,getHeight());
-        rechts = new Rectangle(getX()+getWidth()+MARGIN,MARGIN,MARGIN,getHeight());
-
-    }
-
-    public Dimension getIB_DIM() {
-        return IB_DIM;
-    }
-
-    public Dimension getFELD_DIM() {
-        return FELD_DIM;
-    }
-
     public Rectangle getSpielflaeche() {
         return spielflaeche;
     }
@@ -60,6 +55,7 @@ public class Spielfeld {
         ib.abwischen();
         ib.neuesRechteck(spielflaeche, "spielfeld", MARGIN, MARGIN, FELD_DIM.width, FELD_DIM.height);
         ib.neueLinie(spielflaeche.mitteInX(), spielflaeche.mitteInY(), spielflaeche.mitteInX(), spielflaeche.mitteInY() + FELD_DIM.height);
+
         /**
          *
          *  oben.darstellenFuellung(ib);
@@ -79,20 +75,8 @@ public class Spielfeld {
         return FELD_DIM.height;
     }
 
-    public int getHeightIB() {
-        return IB_DIM.height;
-    }
-
-    public int getWidthIB() {
-        return IB_DIM.width;
-    }
-
     public int getMARGIN() {
         return MARGIN;
-    }
-
-    public int getY() {
-        return (getHeight() - FELD_DIM.height + MARGIN * 3);
     }
 
     public int getX() {
