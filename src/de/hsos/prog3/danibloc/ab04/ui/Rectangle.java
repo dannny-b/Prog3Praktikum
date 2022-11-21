@@ -5,7 +5,7 @@ import de.hsos.prog3.danibloc.ab04.util.Interaktionsbrett;
 
 public class Rectangle {
 
-    private Punkt bottomLeft,bottomRight;
+    private Punkt bottomLeft, bottomRight;
     private Punkt topLeft, topRight;
 
     public int getX() {
@@ -25,10 +25,10 @@ public class Rectangle {
         this.y = y;
         this.breite = breite;
         this.hoehe = hoehe;
-        this.topLeft = new Punkt(this.x,this.y);
-        this.topRight = new Punkt(this.x+this.breite,this.y);
-        this.bottomLeft = new Punkt(this.x,this.y+this.hoehe);
-        this.bottomRight = new Punkt(this.x+this.breite,this.y+this.hoehe);
+        this.topLeft = new Punkt(this.x, this.y);
+        this.topRight = new Punkt(this.x + this.breite, this.y);
+        this.bottomLeft = new Punkt(this.x, this.y + this.hoehe);
+        this.bottomRight = new Punkt(this.x + this.breite, this.y + this.hoehe);
     }
 
     public int getBreite() {
@@ -82,17 +82,12 @@ public class Rectangle {
         this.y = y;
     }
 
-    public boolean ueberschneidet(Rectangle other) {
-     if(this.topRight.getY() < other.bottomLeft.getY()||this.bottomLeft.getY() > other.topRight.getY()){
-         return false;
-     }
-     if(this.topRight.getX() < other.bottomLeft.getX() || this.bottomLeft.getX() > other.topRight.getX()){
-         return false;
-     }
-     return true;
-    }
 
-    public boolean intersects(Rectangle r){
+    /**
+     * src: java.awt.Rectangle
+     */
+
+    public boolean intersects(Rectangle r) {
         int tw = this.breite;
         int th = this.hoehe;
         int rw = r.breite;

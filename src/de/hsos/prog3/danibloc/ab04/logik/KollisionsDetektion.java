@@ -2,12 +2,15 @@ package de.hsos.prog3.danibloc.ab04.logik;
 
 import de.hsos.prog3.danibloc.ab02.util.Interaktionsbrett;
 import de.hsos.prog3.danibloc.ab04.ui.Ball;
+import de.hsos.prog3.danibloc.ab04.ui.Rectangle;
 import de.hsos.prog3.danibloc.ab04.ui.Spieler;
 import de.hsos.prog3.danibloc.ab04.ui.Spielfeld;
 
 public class KollisionsDetektion {
     private Spielfeld spielfeld;
     private Spieler spielerLinks, spielerRechts;
+
+    private Rectangle oben, unten, links, rechts;
 
     public enum BallPosition {DRINNEN, DRAUSSEN_LINKS, DRAUSSEN_RECHTS}
 
@@ -25,6 +28,9 @@ public class KollisionsDetektion {
         if ((this.spielerRechts = spielerRechts) == null) {
             throw new IllegalArgumentException();
         }
+        oben = new Rectangle(spielfeld.getMARGIN(),0,spielfeld.getWidth(),spielfeld.getMARGIN());
+        unten = new Rectangle(spielfeld.getMARGIN(), spielfeld.getHeight()+spielfeld.getMARGIN(),spielfeld.getWidth(),spielfeld.getMARGIN());
+
     }
 
     public Spielfeld getSpielfeld() {
@@ -53,31 +59,25 @@ public class KollisionsDetektion {
 
 
     public boolean checkBeruehrungBallSpielfeldGrenzen(Ball ball) {
-        if ((checkAusserhalbDesSpielfeldes(ball) == BallPosition.DRINNEN)) {
-            if ((ball.getY() == spielfeld.getSpielflaeche().getY()) || (ball.getY() == spielfeld.getSpielflaeche().getY() + spielfeld.getSpielflaeche().getHoehe())) {
-                System.out.println("Beruherung Grnezen");
-                return true;
-            }
+            // oben
+        if(oben.intersects(ball.getForm())|| unten.intersects(ball.getForm())){
+            System.out.println("true");
+            return true;
         }
         return false;
+
     }
 
     public boolean checkBeruehrungBallMitSchlaeger(Ball ball) {
         if ((spielerLinks.getSchlaeger().intersects(ball.getForm())) || (spielerRechts.getSchlaeger().intersects(ball.getForm()))) {
-            System.out.println("Schlaeger");
+
             return true;
         }
         return false;
     }
 
     public BallPosition checkAusserhalbDesSpielfeldes(Ball ball) {
-        if (ball.getX() < spielfeld.getSpielflaeche().getX()) {
-            return BallPosition.DRAUSSEN_LINKS;
-        }
-        if (ball.getX() > spielfeld.getSpielflaeche().getX() + spielfeld.getSpielflaeche().getBreite()) {
-            return BallPosition.DRAUSSEN_RECHTS;
-        }
-        return BallPosition.DRINNEN;
+        return null;
     }
 
 

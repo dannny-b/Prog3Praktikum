@@ -4,25 +4,29 @@ import de.hsos.prog3.danibloc.ab04.PongSpiel;
 import de.hsos.prog3.danibloc.ab04.util.Interaktionsbrett;
 
 public class Ball {
-    Rectangle form;
-    PongSpiel spiel;
-    int x, y;
+    private Rectangle form;
 
-    public int getxRichtung() {
-        return xRichtung;
+    public int getSPEED_X() {
+        return SPEED_X;
     }
 
-    public void setxRichtung(int xRichtung) {
-        this.xRichtung = xRichtung;
+    public void setSPEED_X(int SPEED_X) {
+        bewegungInXProFrame = SPEED_X;
     }
 
-    public int getyRichtung() {
-        return yRichtung;
+    public int getSPEED_Y() {
+        return SPEED_Y;
     }
 
-    public void setyRichtung(int yRichtung) {
-        this.yRichtung = yRichtung;
+    public void setSPEED_Y(int SPEED_Y) {
+        bewegungInYProFrame = SPEED_Y;
     }
+
+    private int SPEED_X = 2;
+    private int SPEED_Y = 1;
+    private PongSpiel spiel;
+    private int x, y;
+
 
     int xRichtung, yRichtung;
 
@@ -50,14 +54,15 @@ public class Ball {
         this.breite = form.getBreite();
         this.hoehe = form.getHoehe();
         this.spiel = spiel;
-        bewegungInXProFrame = 2;
-        bewegungInYProFrame = 0;
+        bewegungInXProFrame = SPEED_X;
+        bewegungInYProFrame = SPEED_Y;
     }
 
     public void bewegen(int frames) throws InterruptedException {
         for (int i = 0; i < frames; i++) {
             this.form.verschiebe(bewegungInXProFrame, bewegungInYProFrame);
         }
+
     }
 
     public void darstellen(Interaktionsbrett ib) throws InterruptedException {
@@ -75,7 +80,6 @@ public class Ball {
     public int getBewegungInXProFrame() {
         return bewegungInXProFrame;
     }
-
     public int getBewegungInYProFrame() {
         return bewegungInYProFrame;
     }

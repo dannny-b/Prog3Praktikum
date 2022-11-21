@@ -7,10 +7,11 @@ import de.hsos.prog3.danibloc.ab04.ui.Spieler;
 import de.hsos.prog3.danibloc.ab04.ui.Spielfeld;
 import de.hsos.prog3.danibloc.ab04.util.Interaktionsbrett;
 
+import java.awt.event.KeyListener;
+
 public class PongSpiel {
     private Interaktionsbrett ib;
     private static Ball ball;
-
     private KollisionsDetektion detektor;
     private boolean gestartet;
 
@@ -25,7 +26,6 @@ public class PongSpiel {
     private Spielfeld spielfeld;
     private Spieler spielerLinks;
     private Spieler spielerRechts;
-
     private final int FPMS = 1;
     private final int BALL_DIM = 15;
 
@@ -72,6 +72,8 @@ public class PongSpiel {
     }
 
     public void spielen() {
+        ball.setSPEED_Y(1);
+        ball.setSPEED_X(1);
         new Thread(() -> {
             Thread.currentThread().setPriority(1);
             long differenz = 0;
@@ -86,14 +88,13 @@ public class PongSpiel {
                     spielerRechts.getSchlaeger().darstellenFuellung(ib);
                 }
                 try {
-                    ball.bewegen(1);
                     pruefeBallKollision();
+                    ball.bewegen(1);
                     ball.darstellen(ib);
+
                 } catch (RuntimeException | InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-
-
                 long nacher = System.currentTimeMillis();
                 differenz = (nacher - vorher);
                 try {
@@ -104,26 +105,17 @@ public class PongSpiel {
                     throw new RuntimeException(e);
                 }
             }
-        }).start();
+            }).start();
     }
 
     private void pruefeBallKollision() {
         KollisionsDetektion.BallPosition pos = detektor.checkAusserhalbDesSpielfeldes(ball);
-        if (pos == KollisionsDetektion.BallPosition.DRINNEN) {
-            if (detektor.checkBeruehrungBallMitSchlaeger(ball)) {
-                ball.umkehrenDerBewegungInX();
-            }
-            if (detektor.checkBeruehrungBallSpielfeldGrenzen(ball)) {
-                ball.umkehrenDerBewegungInY();
-            }
-        } else {
-            if (pos == KollisionsDetektion.BallPosition.DRAUSSEN_LINKS) {
-                spielerRechts.erhoehePunkte();
-            }
-            if (pos == KollisionsDetektion.BallPosition.DRAUSSEN_RECHTS) {
-                spielerLinks.erhoehePunkte();
-            }
-        }
+       if(detektor.checkBeruehrungBallMitSchlaeger(ball)){
+           ball.umkehrenDerBewegungInX();
+       }
+       else if(detektor.checkBeruehrungBallSpielfeldGrenzen(ball)){
+           ball.umkehrenDerBewegungInY();
+       }
     }
 
     public void tasteGedrueckt(String s) {

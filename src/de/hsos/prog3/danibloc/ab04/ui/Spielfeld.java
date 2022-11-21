@@ -9,7 +9,17 @@ import java.awt.*;
 public class Spielfeld {
 
     private final int MARGIN = 15;
+
+    public Dimension getIB_DIM() {
+        return IB_DIM;
+    }
+
     private final Dimension IB_DIM = new Dimension(800, 700);
+
+    public Dimension getFELD_DIM() {
+        return FELD_DIM;
+    }
+
     private final Dimension FELD_DIM= new Dimension(IB_DIM.width - MARGIN * 4, IB_DIM.height - MARGIN * 8);
 
     public Rectangle getSpielflaeche() {
