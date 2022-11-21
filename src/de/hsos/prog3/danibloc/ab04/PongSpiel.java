@@ -7,13 +7,24 @@ import de.hsos.prog3.danibloc.ab04.ui.Spieler;
 import de.hsos.prog3.danibloc.ab04.ui.Spielfeld;
 import de.hsos.prog3.danibloc.ab04.util.Interaktionsbrett;
 
-import java.awt.event.KeyListener;
-
 public class PongSpiel {
-    private Interaktionsbrett ib;
     private static Ball ball;
+    private final int FPMS = 17;
+    private final int BALL_DIM = 15;
+    private Interaktionsbrett ib;
     private KollisionsDetektion detektor;
     private boolean gestartet;
+    private Spielfeld spielfeld;
+    private Spieler spielerLinks;
+    private Spieler spielerRechts;
+    public PongSpiel() {
+        ib = new Interaktionsbrett();
+        startAufstellung();
+        ib.willTasteninfo(this);
+        gestartet = false;
+
+    }
+    int count = 0;
 
     public Ball getBall() {
         return ball;
@@ -22,12 +33,6 @@ public class PongSpiel {
     public int getFPMS() {
         return FPMS;
     }
-
-    private Spielfeld spielfeld;
-    private Spieler spielerLinks;
-    private Spieler spielerRechts;
-    private final int FPMS = 1;
-    private final int BALL_DIM = 15;
 
     public Interaktionsbrett getIb() {
         return ib;
@@ -45,15 +50,6 @@ public class PongSpiel {
         return spielerRechts;
     }
 
-
-    public PongSpiel() {
-        ib = new Interaktionsbrett();
-        startAufstellung();
-        ib.willTasteninfo(this);
-        gestartet = false;
-
-    }
-
     private void startAufstellung() {
         spielfeld = new Spielfeld();
         spielerLinks = new Spieler(spielfeld, spielfeld.getMARGIN() + 20, (int) (spielfeld.getHeight() * 0.45));
@@ -62,7 +58,6 @@ public class PongSpiel {
         ib.neuesRechteck(spielerLinks, "spielerLinks", spielerLinks.getSchlaeger().getX(), spielerLinks.getSchlaeger().getY(), spielerLinks.getSchlaeger().getBreite(), spielerLinks.getSchlaeger().getHoehe());
         ib.neuesRechteck(spielerRechts, "spielerRechts", spielerRechts.getSchlaeger().getX(), spielerRechts.getSchlaeger().getY(), spielerRechts.getSchlaeger().getBreite(), spielerRechts.getSchlaeger().getHoehe());
         ib.neuesRechteck(ball, "Ball", ball.getX(), ball.getY(), ball.getBreite(), ball.getHoehe());
-        ib.neuerText(spielfeld.getSpielflaeche().mitteInX() - spielfeld.getMARGIN(), spielfeld.getSpielflaeche().getY() + spielfeld.getMARGIN(), Integer.toString(spielerLinks.getPunkte()));
         spielfeld.darstellen(ib);
         spielerLinks.getSchlaeger().darstellenFuellung(ib);
         spielerRechts.getSchlaeger().darstellenFuellung(ib);
@@ -72,12 +67,13 @@ public class PongSpiel {
     }
 
     public void spielen() {
-        ball.setSPEED_Y(1);
-        ball.setSPEED_X(1);
+        ball.setBewegungInXProFrame(3);
+        ball.setBewegungInYProFrame(1);
         new Thread(() -> {
             Thread.currentThread().setPriority(1);
             long differenz = 0;
             while (true) {
+                count++;
                 long vorher = System.currentTimeMillis();
                 ib.abwischen();
                 spielfeld.darstellen(ib);
@@ -88,12 +84,11 @@ public class PongSpiel {
                     spielerRechts.getSchlaeger().darstellenFuellung(ib);
                 }
                 try {
-                    pruefeBallKollision();
                     ball.bewegen(1);
+                    pruefeBallKollision();
                     ball.darstellen(ib);
-
-                } catch (RuntimeException | InterruptedException e) {
-                    throw new RuntimeException(e);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
                 long nacher = System.currentTimeMillis();
                 differenz = (nacher - vorher);
@@ -105,24 +100,48 @@ public class PongSpiel {
                     throw new RuntimeException(e);
                 }
             }
-            }).start();
+        }).start();
     }
 
     private void pruefeBallKollision() {
         KollisionsDetektion.BallPosition pos = detektor.checkAusserhalbDesSpielfeldes(ball);
-       if(detektor.checkBeruehrungBallMitSchlaeger(ball)){
-           ball.umkehrenDerBewegungInX();
-       }
-       else if(detektor.checkBeruehrungBallSpielfeldGrenzen(ball)){
-           ball.umkehrenDerBewegungInY();
-       }
+        if (detektor.checkBeruehrungBallMitSchlaeger(ball)) {
+            ball.umkehrenDerBewegungInX();
+        } else if (detektor.checkBeruehrungBallSpielfeldGrenzen(ball)) {
+            ball.umkehrenDerBewegungInY();
+        } else if (detektor.checkAusserhalbDesSpielfeldes(ball) != KollisionsDetektion.BallPosition.DRINNEN) {
+            ball.umkehrenDerBewegungInX();
+            erhöhePunkte();
+        }
     }
 
-    public void tasteGedrueckt(String s) {
+    public void erhöhePunkte() {
+        if (ball.getX() < spielfeld.getSpielflaeche().mitteInX()) {
+            if (spielerRechts.getPunkte() <= 14) {
+                spielerRechts.erhoehePunkte();
+            } else {
+                //gewonnen(spielerRechts);
+            }
+
+        } else {
+            if (spielerLinks.getPunkte() <= 14) {
+                spielerLinks.erhoehePunkte();
+            } else {
+                //gewonnen(spielerLinks);
+            }
+        }
+    }
+
+    public void tasteGedrueckt(String s) throws InterruptedException {
         if (s.equals("s") && gestartet == false) {
             System.out.println("Spiel gestartet");
             gestartet = true;
+
             spielen();
+            Thread.sleep(5000);
+            System.out.println(count);
+
+
         }
         if (s.equals("e")) {
             System.out.println("exit");

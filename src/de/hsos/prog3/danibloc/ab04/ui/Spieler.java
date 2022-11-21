@@ -1,8 +1,5 @@
 package de.hsos.prog3.danibloc.ab04.ui;
 
-import de.hsos.prog3.danibloc.ab04.util.Interaktionsbrett;
-import de.hsos.prog3.danibloc.ab04.util.Interaktionsbrett.*;
-
 public class Spieler {
     private Spielfeld spielfeld;
     private Rectangle schlaeger;
@@ -35,20 +32,19 @@ public class Spieler {
 
 
     public void aufwaerts() {
-        // ToDO: grenzen akkurat implementieren
-        if (schlaeger.getY() - SPEED < 0 || schlaeger.getY() - SPEED <= SPEED) {
-            System.out.println("zu weit");
-            schlaeger.verschiebeNach(schlaeger.getX(), spielfeld.getY());
+        if(schlaeger.getY() - SPEED <= spielfeld.getMARGIN()){
+            schlaeger.verschiebeNach(this.getX(), spielfeld.getMARGIN());
+        }else{
+            schlaeger.verschiebe(0,-SPEED);
         }
-        schlaeger.verschiebe(0, -SPEED);
     }
 
     public void abwaerts() {
-        if (schlaeger.getY() - SPEED > spielfeld.getHeight()) {
-            System.out.println("zu weit");
-            schlaeger.verschiebeNach(schlaeger.getX(), spielfeld.getY());
+        if(schlaeger.getY() + schlaeger.getHoehe() + SPEED >= spielfeld.getUnten().getY()){
+            schlaeger.verschiebeNach(this.getX(), spielfeld.getUnten().getY() - schlaeger.getHoehe());
+        }else{
+            schlaeger.verschiebe(0,SPEED);
         }
-        schlaeger.verschiebe(0, SPEED);
     }
 
     public Rectangle getSchlaeger() {
@@ -57,12 +53,9 @@ public class Spieler {
 
     public void erhoehePunkte() {
         this.punkte++;
-        System.out.println("Punkt Spieler" + this.toString());
     }
 
     public void setzePunkteZurueck() {
         this.punkte = 0;
     }
-
-
 }

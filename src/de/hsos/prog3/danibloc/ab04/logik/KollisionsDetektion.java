@@ -1,16 +1,12 @@
 package de.hsos.prog3.danibloc.ab04.logik;
 
-import de.hsos.prog3.danibloc.ab02.util.Interaktionsbrett;
 import de.hsos.prog3.danibloc.ab04.ui.Ball;
-import de.hsos.prog3.danibloc.ab04.ui.Rectangle;
 import de.hsos.prog3.danibloc.ab04.ui.Spieler;
 import de.hsos.prog3.danibloc.ab04.ui.Spielfeld;
 
 public class KollisionsDetektion {
     private Spielfeld spielfeld;
     private Spieler spielerLinks, spielerRechts;
-
-    private Rectangle oben, unten, links, rechts;
 
     public enum BallPosition {DRINNEN, DRAUSSEN_LINKS, DRAUSSEN_RECHTS}
 
@@ -28,10 +24,7 @@ public class KollisionsDetektion {
         if ((this.spielerRechts = spielerRechts) == null) {
             throw new IllegalArgumentException();
         }
-        oben = new Rectangle(spielfeld.getMARGIN(),0,spielfeld.getWidth(),spielfeld.getMARGIN());
-        unten = new Rectangle(spielfeld.getMARGIN(), spielfeld.getHeight()+spielfeld.getMARGIN(),spielfeld.getWidth(),spielfeld.getMARGIN());
-
-    }
+        }
 
     public Spielfeld getSpielfeld() {
         return spielfeld;
@@ -59,9 +52,7 @@ public class KollisionsDetektion {
 
 
     public boolean checkBeruehrungBallSpielfeldGrenzen(Ball ball) {
-            // oben
-        if(oben.intersects(ball.getForm())|| unten.intersects(ball.getForm())){
-            System.out.println("true");
+        if(spielfeld.getOben().intersects(ball.getForm())|| spielfeld.getUnten().intersects(ball.getForm())){
             return true;
         }
         return false;
@@ -77,8 +68,13 @@ public class KollisionsDetektion {
     }
 
     public BallPosition checkAusserhalbDesSpielfeldes(Ball ball) {
-        return null;
+        if(spielfeld.getLinks().intersects(ball.getForm())){
+            return BallPosition.DRAUSSEN_LINKS;
+        }
+        if(spielfeld.getRechts().intersects(ball.getForm())){
+            return BallPosition.DRAUSSEN_RECHTS;
+        }
+        return BallPosition.DRINNEN;
     }
-
 
 }

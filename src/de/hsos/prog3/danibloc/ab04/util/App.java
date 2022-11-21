@@ -7,5 +7,6 @@ public class App {
 
     public static void main(String[] args) throws CloneNotSupportedException {
         PongSpiel spiel = new PongSpiel();
+
     }
 }
