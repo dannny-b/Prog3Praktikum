@@ -1,82 +1,41 @@
 package de.hsos.prog3.danibloc.ab03;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.*;
 
-public class Ringpuffer<E> implements Queue, Serializable, Cloneable {
-    private int size = 0;
+import static java.util.Collections.copy;
 
-    public int getSize() {
-        return size;
-    }
 
-    public int getWritePos() {
-        return writePos;
-    }
-
-    public int getReadPos() {
-        return readPos;
-    }
-
+public class Ringpuffer<E> implements Queue<E>, Serializable, Cloneable {
+    private ArrayList<E> elements;
     private int writePos;
     private int readPos;
+    private int size;
     private int capacity;
-    private boolean fixedCapacity;
-    private boolean discarding;
-    private boolean isFull = false;
-
-    public ArrayList<E> getElements() {
-        return elements;
-    }
-
-    private ArrayList<E> elements;
-
-    private ArrayDeque<E> arrayDeque = new ArrayDeque<>();
+    private final boolean fixedCapacity;
+    private final boolean discarding;
 
     public Ringpuffer(int capacity, boolean fixedCapacity, boolean discarding) {
-        this.capacity = (capacity < 1) ? 5 : capacity;
-        System.out.println(capacity);
-        this.readPos = 0;
-        this.writePos = 0;
+        this.elements = new ArrayList<>(this.capacity = capacity);
+        for (int i = 0; i < capacity; i++) {
+            elements.add(null);
+        }
         this.fixedCapacity = fixedCapacity;
         this.discarding = discarding;
-
-        this.elements = new ArrayList<E>(capacity);
-        this.isFull = isFull();
-    }
-
-    public Ringpuffer(Ringpuffer<E> ringpuffer) {
-        this.capacity = ringpuffer.getCapacity();
-        this.readPos = ringpuffer.getReadPos();
-        this.writePos = ringpuffer.getWritePos();
-        this.fixedCapacity = ringpuffer.fixedCapacity;
-        this.discarding = ringpuffer.isDiscarding();
-        this.updateSize();
-        this.elements = ringpuffer.getElements();
-        this.isFull = isFull();
-
-
-    }
-
-    private boolean isDiscarding() {
-        return this.discarding;
-    }
-
-    private boolean isFixedCapacity() {
-        return this.fixedCapacity;
     }
 
     @Override
-    public Ringpuffer<E> clone() {
+    public Object clone() {
         try {
-            Ringpuffer clone = (Ringpuffer) super.clone();
-            // TODO: copy mutable state here, so the clone can't change the internals of the original
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
+            Ringpuffer<E> c = (Ringpuffer<E>) super.clone();
+            c.elements = new ArrayList<>(c.capacity);
+            copy(c.elements, elements);
+            return c;
+        } catch (Exception e) {
+            throw new InternalError(e);
         }
     }
-
 
     @Override
     public int size() {
@@ -85,143 +44,221 @@ public class Ringpuffer<E> implements Queue, Serializable, Cloneable {
 
     @Override
     public boolean isEmpty() {
-        return (this.writePos < this.readPos);
+        return (size == 0);
     }
 
     @Override
     public boolean contains(Object o) {
+        if (elements.contains(o)) return true;
         return false;
     }
 
     @Override
-    public Iterator iterator() {
-        return null;
+    public Iterator<E> iterator() {
+        Iterator<E> itr = new Iterator<E>() {
+            private int index = readPos;
+
+            @Override
+            public boolean hasNext() {
+                if (index != writePos) return true;
+                return false;
+            }
+
+            @Override
+            public E next() {
+                E el = elements.get(readPos + 1);
+                index = (index + 1) % capacity;
+                return el;
+            }
+        };
+        return itr;
     }
 
     @Override
     public Object[] toArray() {
-        Object[] array = new Object[this.size];
-        for (int i = 0; i < this.size; i++) {
-            array[i] = elements.get(i);
+        Object[] array = new Object[size];
+        int tmp = readPos;
+        for (int i = 0; i < size; i++) {
+            array[i] = elements.get(tmp);
+            tmp = (tmp + 1) % capacity;
         }
         return array;
     }
 
     @Override
-    public Object[] toArray(Object[] a) {
-        return new Object[0];
+    public <E> E[] toArray(E[] a) {
+
+        if (a.length < size) {
+            a = (E[]) Array.newInstance(a.getClass().getComponentType(), size);
+        }
+
+        Iterator<E> itr = (Iterator<E>) iterator();
+        for (int i = 0; i < size; i++) {
+            a[i] = itr.next();
+        }
+
+        if (a.length > size) {
+            a[size] = null;
+        }
+        return a;
+
     }
 
-    @Override
-    public boolean add(Object o) {
-        if (isEmpty()) {
-            elements.add(writePos, (E) o);
-            writePos++;
-            updateSize();
+    private boolean writeInto(int pos, Object o) {
+        if ((pos >= 0) && (pos < capacity)) {
+            elements.set(pos, (E) o);
+            writePos = (writePos + 1) % capacity;
+            size++;
             return true;
         }
-        if (writePos == size) {
-            writePos = 0;
-        }
-        elements.add(writePos, (E) o);
-        writePos++;
-        updateSize();
-
-
-        return false;
-
-    }
-
-    @Override
-    public boolean remove(Object o) {
-        /**
-         *Entfernte“ Elemente
-         * sollen physisch in der
-         * ArrayList<T> verbleiben.
-         * Sie werden nur „logisch“
-         * gelöscht, indem die
-         * Lesen-Position
-         * verschoben wird.
-         * **/
-        return false;
-    }
-
-    @Override
-    public boolean addAll(Collection c) {
-        return false;
-    }
-
-    @Override
-    public void clear() {
-
-    }
-
-    @Override
-    public boolean retainAll(Collection c) {
-        return false;
-    }
-
-    @Override
-    public boolean removeAll(Collection c) {
         throw new IllegalArgumentException();
     }
 
     @Override
-    public boolean containsAll(Collection c) {
-        return false;
+    public boolean add(E e) {
+        if (!isFull()) {
+            return writeInto(writePos, e);
+        } else {
+            if (discarding) {
+                return writeInto(writePos, e);
+            }
+            if (!fixedCapacity) {
+                grow();
+                return writeInto(writePos, e);
+            }
+        }
+        throw new IllegalArgumentException();
+    }
+
+    private void grow() {
+        ArrayList<E> tmp = (ArrayList<E>) elements.clone();
+        elements = new ArrayList<>(capacity++);
+        for (int i = 0; i < capacity; i++) {
+            elements.add(null);
+        }
+        copy(elements, tmp);
+        writePos = capacity - 1;
     }
 
     @Override
-    public boolean offer(Object o) {
-        if (!isFull) {
-            int nextWritePos = this.writePos + 1;
-            this.elements.set(nextWritePos % capacity, (E) o);
-            writePos++;
+    public boolean remove(Object o) {
+        if (isEmpty() || elements.get(readPos) != o || o == null) {
+            return false;
+        }
+        try {
+            remove();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> c) {
+        if (c.size() != this.size) return false;
+        Iterator<?> iterator = c.iterator();
+        while (iterator.hasNext()) {
+            if (!this.contains(iterator)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends E> c) {
+        if (c != null) {
+            c.forEach(this::add);
             return true;
         }
         return false;
     }
 
     @Override
-    public Object remove() {
-        return null;
+    public boolean removeAll(Collection<?> c) {
+        Iterator<?> iterator = c.iterator();
+        while (iterator.hasNext()) {
+            this.remove(iterator);
+        }
+        return true;
+
     }
 
     @Override
-    public Object poll() {
+    public boolean retainAll(Collection<?> c) {
+        for (int i = readPos; i < size; i++) {
+            if (!c.contains(elements.get(i))) {
+                poll();
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public void clear() {
+        elements = new ArrayList<>(capacity);
+        for (int i = 0; i < capacity; i++) {
+            elements.add(null);
+        }
+        size = writePos = readPos = 0;
+    }
+
+    @Override
+    public boolean offer(E e) {
+        try {
+            return add(e);
+        } catch (Exception exception) {
+            return false;
+        }
+    }
+
+    @Override
+    public E remove() {
         if (!isEmpty()) {
-            E nextValue = this.elements.get(this.readPos % this.capacity);
-            this.readPos++;
-            return nextValue;
+            E e = elements.get(readPos);
+            readPos = (readPos + 1) % capacity;
+            this.size--;
+            return e;
         }
-        return null;
+        throw new NoSuchElementException();
     }
 
     @Override
-    public Object element() {
-        return null;
+    public E poll() {
+        try {
+            return remove();
+        } catch (Exception e) {
+            return null;
+        }
+
     }
 
     @Override
-    public Object peek() {
-        return null;
-    }
-
-    private void updateSize() {
-        this.size = (this.writePos - this.readPos) + 1;
-    }
-
-    private boolean isFull() {
-        return ((this.writePos - this.readPos) + 1) == this.capacity;
-    }
-
-    public int getCapacity() {
-        return this.capacity + 1;
-    }
-
-    public void showPuffer() {
-        for (int i = 0; i < elements.size(); i++) {
-            System.out.println(i + ": " + elements.get(i));
+    public E element() {
+        if (!isEmpty()) {
+            return elements.get(readPos);
         }
+        throw new NoSuchElementException();
+    }
+
+    @Override
+    public E peek() {
+        try {
+            return element();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public boolean isFull() {
+        return (size == capacity);
+    }
+
+    public void showBuffer() {
+        for (int i = 0; i < capacity; i++) {
+            System.out.println(i + " : " + elements.get(i));
+        }
+        System.out.println(" write: " + writePos + " , read: " + readPos + " ,Size: " + this.size());
     }
 }

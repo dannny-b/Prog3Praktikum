@@ -10,14 +10,7 @@ public class Simulator implements Simulation {
     private boolean[][] spielfeld;
     private int anzahlFelder;
     private int countKeineAenderung = 0;
-     boolean nicht_mehr_aendern = false;
-
-    /**
-     * Die Implementierungen der Methoden
-     * berechneAnfangsGeneration(…) und berechneFolgeGeneration(…) rufen sobald
-     * eine neue Generation vorliegt, die aktualisiere-Methode der Instanzvariable beiAenderung
-     * auf, falls diese nicht null ist.
-     */
+    boolean nicht_mehr_aendern = false;
 
     @Override
     public void berechneAnfangsGeneration(int anzahlDerZellen, int wahrscheinlichkeitDerBesiedlung) {
@@ -109,6 +102,7 @@ public class Simulator implements Simulation {
             beiAenderung.aktualisiere(neueGeneration);
         }
     }
+
     public boolean getNichtMehrAendern() {
         return nicht_mehr_aendern;
     }
