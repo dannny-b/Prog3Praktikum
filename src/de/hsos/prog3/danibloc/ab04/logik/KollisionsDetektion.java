@@ -26,44 +26,13 @@ public class KollisionsDetektion {
         }
         }
 
-    public Spielfeld getSpielfeld() {
-        return spielfeld;
-    }
-
-    public void setSpielfeld(Spielfeld spielfeld) {
-        this.spielfeld = spielfeld;
-    }
-
-    public Spieler getSpielerLinks() {
-        return spielerLinks;
-    }
-
-    public void setSpielerLinks(Spieler spielerLinks) {
-        this.spielerLinks = spielerLinks;
-    }
-
-    public Spieler getSpielerRechts() {
-        return spielerRechts;
-    }
-
-    public void setSpielerRechts(Spieler spielerRechts) {
-        this.spielerRechts = spielerRechts;
-    }
-
-
     public boolean checkBeruehrungBallSpielfeldGrenzen(Ball ball) {
-        if(spielfeld.getOben().intersects(ball.getForm())|| spielfeld.getUnten().intersects(ball.getForm())){
-            return true;
-        }
-        return false;
+        return spielfeld.getOben().intersects(ball.getForm()) || spielfeld.getUnten().intersects(ball.getForm());
 
     }
 
     public boolean checkBeruehrungBallMitSchlaeger(Ball ball) {
-        if ((spielerLinks.getSchlaeger().intersects(ball.getForm())) || (spielerRechts.getSchlaeger().intersects(ball.getForm()))) {
-            return true;
-        }
-        return false;
+        return (spielerLinks.getSchlaeger().intersects(ball.getForm())) || (spielerRechts.getSchlaeger().intersects(ball.getForm()));
     }
 
     public BallPosition checkAusserhalbDesSpielfeldes(Ball ball) {
